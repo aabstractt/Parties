@@ -21,7 +21,7 @@ final class DefaultPartyAdapter extends PartyAdapter {
      * @param Player $source
      */
     public function createParty(Player $source): void {
-        if ($this->getPartyByPlayer($source) !== null) {
+        if ($this->getPartyByPlayer($source->getXuid()) !== null) {
             $source->sendMessage(TextFormat::RED . 'You are already in a party');
 
             return;
@@ -55,7 +55,7 @@ final class DefaultPartyAdapter extends PartyAdapter {
             return;
         }
 
-        if ($this->getPartyByPlayer($target) !== null) {
+        if ($this->getPartyByPlayer($target->getXuid()) !== null) {
             $source->sendMessage(TextFormat::RED . $target->getName() . ' is already in a party');
 
             return;
@@ -81,7 +81,7 @@ final class DefaultPartyAdapter extends PartyAdapter {
      * @param Party  $party
      */
     public function processKickPlayer(Player $source, Player $target, Party $party): void {
-        $party = $this->getPartyByPlayer($source);
+        $party = $this->getPartyByPlayer($source->getXuid());
         if ($party === null) {
             $source->sendMessage(TextFormat::RED . 'You are not in a party');
 
@@ -136,7 +136,7 @@ final class DefaultPartyAdapter extends PartyAdapter {
      * @param Player $source
      */
     public function onPlayerQuit(Player $source): void {
-        $party = $this->getPartyByPlayer($source);
+        $party = $this->getPartyByPlayer($source->getXuid());
         if ($party === null) return;
 
         $this->disbandParty($source, $party);

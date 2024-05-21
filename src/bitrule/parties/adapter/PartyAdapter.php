@@ -37,8 +37,8 @@ abstract class PartyAdapter {
      *
      * @return Party|null
      */
-    public function getPartyByPlayer(Player $player): ?Party {
-        $partyId = $this->playersParties[$player->getXuid()] ?? null;
+    public function getPartyByPlayer(string $xuid): ?Party {
+        $partyId = $this->playersParties[$xuid] ?? null;
         if ($partyId === null) return null;
 
         return $this->parties[$partyId] ?? null;
