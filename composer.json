@@ -1,6 +1,6 @@
 {
-  "name": "bitrule/plugin_name",
-  "description": "Description",
+  "name": "bitrule/parties",
+  "description": "Parties plugin for PocketMine-MP used for Habu",
   "minimum-stability": "dev",
   "license": "Apache-2.0",
 
