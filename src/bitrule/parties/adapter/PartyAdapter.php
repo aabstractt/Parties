@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace bitrule\parties\adapter;
 
 use bitrule\parties\object\Party;
+use bitrule\parties\PartiesPlugin;
 use pocketmine\player\Player;
 use pocketmine\Server;
 use pocketmine\utils\TextFormat;
@@ -89,20 +90,26 @@ abstract class PartyAdapter {
      * @param string $playerName
      * @param Party  $party
      */
-    abstract public function processInvitePlayer(Player $source, string $playerName, Party $party): void;
+    abstract public function onPlayerInvite(Player $source, string $playerName, Party $party): void;
+
+    /**
+     * @param Player $source
+     * @param string $playerName
+     */
+    abstract public function onPlayerAccept(Player $source, string $playerName): void;
 
     /**
      * @param Player $source
      * @param Player $target
      * @param Party  $party
      */
-    abstract public function processKickPlayer(Player $source, Player $target, Party $party): void;
+    abstract public function onPlayerKick(Player $source, Player $target, Party $party): void;
 
     /**
      * @param Player $source
      * @param Party  $party
      */
-    abstract public function processLeavePlayer(Player $source, Party $party): void;
+    abstract public function onPlayerLeave(Player $source, Party $party): void;
 
     /**
      * Adapt the method to disband a party

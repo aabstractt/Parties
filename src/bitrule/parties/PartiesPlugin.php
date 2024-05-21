@@ -9,7 +9,7 @@ use pocketmine\plugin\PluginBase;
 use pocketmine\utils\SingletonTrait;
 use pocketmine\utils\TextFormat;
 
-final class MainPlugin extends PluginBase {
+final class PartiesPlugin extends PluginBase {
     use SingletonTrait {
         setInstance as private;
         reset as private;
@@ -61,5 +61,9 @@ final class MainPlugin extends PluginBase {
         $this->partyAdapter = $partyAdapter;
 
         $this->getLogger()->info(TextFormat::GREEN . 'Party adapter set');
+    }
+
+    public static function prefix(): string {
+        return TextFormat::BLUE . TextFormat::BOLD . 'Party ' . TextFormat::GOLD . '» ' . TextFormat::RESET;
     }
 }

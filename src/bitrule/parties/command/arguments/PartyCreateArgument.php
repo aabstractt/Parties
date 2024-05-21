@@ -6,7 +6,7 @@ namespace bitrule\parties\command\arguments;
 
 use abstractplugin\command\Argument;
 use abstractplugin\command\PlayerArgumentTrait;
-use bitrule\parties\MainPlugin;
+use bitrule\parties\PartiesPlugin;
 use pocketmine\player\Player;
 use pocketmine\utils\TextFormat;
 
@@ -19,14 +19,14 @@ final class PartyCreateArgument extends Argument {
      * @param array  $args
      */
     public function onPlayerExecute(Player $sender, string $label, array $args): void {
-        $partyAdapter = MainPlugin::getInstance()->getPartyAdapter();
+        $partyAdapter = PartiesPlugin::getInstance()->getPartyAdapter();
         if ($partyAdapter === null) {
             $sender->sendMessage(TextFormat::RED . 'Parties are not enabled');
 
             return;
         }
 
-        if ($partyAdapter->getPartyByPlayer($sender) !== null) {
+        if ($partyAdapter->getPartyByPlayer($sender->getXuid()) !== null) {
             $sender->sendMessage(TextFormat::RED . 'You are already in a party');
 
             return;

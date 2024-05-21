@@ -41,7 +41,7 @@ final class DefaultPartyAdapter extends PartyAdapter {
      * @param string $playerName
      * @param Party  $party
      */
-    public function processInvitePlayer(Player $source, string $playerName, Party $party): void {
+    public function onPlayerInvite(Player $source, string $playerName, Party $party): void {
         $target = Server::getInstance()->getPlayerByPrefix($playerName);
         if ($target === null || !$target->isOnline()) {
             $source->sendMessage(TextFormat::RED . $playerName . ' not is online');
@@ -77,10 +77,18 @@ final class DefaultPartyAdapter extends PartyAdapter {
 
     /**
      * @param Player $source
+     * @param string $playerName
+     */
+    public function onPlayerAccept(Player $source, string $playerName): void {
+        // TODO: Implement onPlayerAccept() method.
+    }
+
+    /**
+     * @param Player $source
      * @param Player $target
      * @param Party  $party
      */
-    public function processKickPlayer(Player $source, Player $target, Party $party): void {
+    public function onPlayerKick(Player $source, Player $target, Party $party): void {
         $party = $this->getPartyByPlayer($source->getXuid());
         if ($party === null) {
             $source->sendMessage(TextFormat::RED . 'You are not in a party');
@@ -104,7 +112,7 @@ final class DefaultPartyAdapter extends PartyAdapter {
      * @param Player $source
      * @param Party  $party
      */
-    public function processLeavePlayer(Player $source, Party $party): void {
+    public function onPlayerLeave(Player $source, Party $party): void {
         $party->removeMember($source->getXuid());
         $this->clearMember($source->getXuid());
 
