@@ -8,6 +8,7 @@ use bitrule\parties\object\impl\MemberImpl;
 use bitrule\parties\object\impl\PartyImpl;
 use bitrule\parties\object\Party;
 use bitrule\parties\object\Role;
+use bitrule\parties\PartiesPlugin;
 use pocketmine\player\Player;
 use pocketmine\Server;
 use pocketmine\utils\TextFormat;
@@ -22,7 +23,7 @@ final class DefaultPartyAdapter extends PartyAdapter {
      */
     public function createParty(Player $source): void {
         if ($this->getPartyByPlayer($source->getXuid()) !== null) {
-            $source->sendMessage(TextFormat::RED . 'You are already in a party');
+            $source->sendMessage(PartiesPlugin::prefix() . TextFormat::RED . 'You are already in a party');
 
             return;
         }
@@ -33,7 +34,7 @@ final class DefaultPartyAdapter extends PartyAdapter {
         $this->cache($party);
         $this->cacheMember($source->getXuid(), $party->getId());
 
-        $source->sendMessage(TextFormat::GREEN . 'You have created a party');
+        $source->sendMessage(PartiesPlugin::prefix() . TextFormat::GREEN . 'You have created a party');
     }
 
     /**
@@ -44,35 +45,35 @@ final class DefaultPartyAdapter extends PartyAdapter {
     public function onPlayerInvite(Player $source, string $playerName, Party $party): void {
         $target = Server::getInstance()->getPlayerByPrefix($playerName);
         if ($target === null || !$target->isOnline()) {
-            $source->sendMessage(TextFormat::RED . $playerName . ' not is online');
+            $source->sendMessage(PartiesPlugin::prefix() . TextFormat::RED . $playerName . ' not is online');
 
             return;
         }
 
         if ($party->isMember($target->getXuid())) {
-            $source->sendMessage(TextFormat::RED . $target->getName() . ' is already in your party');
+            $source->sendMessage(PartiesPlugin::prefix() . TextFormat::RED . $target->getName() . ' is already in your party');
 
             return;
         }
 
         if ($this->getPartyByPlayer($target->getXuid()) !== null) {
-            $source->sendMessage(TextFormat::RED . $target->getName() . ' is already in a party');
+            $source->sendMessage(PartiesPlugin::prefix() . TextFormat::RED . $target->getName() . ' is already in a party');
 
             return;
         }
 
         if ($party->hasPendingInvite($target->getXuid())) {
-            $source->sendMessage(TextFormat::RED . 'You have already invited ' . $target->getName());
+            $source->sendMessage(PartiesPlugin::prefix() . TextFormat::RED . 'You have already invited ' . $target->getName());
 
             return;
         }
 
         $party->addPendingInvite($target->getXuid());
 
-        $source->sendMessage(TextFormat::GREEN . 'You have invited ' . $target->getName() . ' to your party');
-        $target->sendMessage(TextFormat::GREEN . 'You have been invited to ' . $source->getName() . '\'s party');
+        $source->sendMessage(PartiesPlugin::prefix() . TextFormat::GREEN . 'You have invited ' . $target->getName() . ' to your party');
+        $target->sendMessage(PartiesPlugin::prefix() . TextFormat::GREEN . 'You have been invited to ' . $source->getName() . '\'s party');
 
-        $party->broadcastMessage(TextFormat::YELLOW . $source->getName() . ' has invited ' . $target->getName() . ' to the party');
+        $party->broadcastMessage(PartiesPlugin::prefix() . TextFormat::YELLOW . $source->getName() . ' has invited ' . $target->getName() . ' to the party');
     }
 
     /**
@@ -91,13 +92,13 @@ final class DefaultPartyAdapter extends PartyAdapter {
     public function onPlayerKick(Player $source, Player $target, Party $party): void {
         $party = $this->getPartyByPlayer($source->getXuid());
         if ($party === null) {
-            $source->sendMessage(TextFormat::RED . 'You are not in a party');
+            $source->sendMessage(PartiesPlugin::prefix() . TextFormat::RED . 'You are not in a party');
 
             return;
         }
 
         if (!$party->isMember($target->getXuid())) {
-            $source->sendMessage(TextFormat::RED . $target->getName() . ' is not in your party');
+            $source->sendMessage(PartiesPlugin::prefix() . TextFormat::RED . $target->getName() . ' is not in your party');
 
             return;
         }
@@ -105,7 +106,7 @@ final class DefaultPartyAdapter extends PartyAdapter {
         $party->removeMember($target->getXuid());
         $this->clearMember($target->getXuid());
 
-        $party->broadcastMessage(TextFormat::YELLOW . $target->getName() . ' has been kicked from the party');
+        $party->broadcastMessage(PartiesPlugin::prefix() . TextFormat::YELLOW . $target->getName() . ' has been kicked from the party');
     }
 
     /**
@@ -116,7 +117,7 @@ final class DefaultPartyAdapter extends PartyAdapter {
         $party->removeMember($source->getXuid());
         $this->clearMember($source->getXuid());
 
-        $party->broadcastMessage(TextFormat::YELLOW . $source->getName() . ' has left the party');
+        $party->broadcastMessage(PartiesPlugin::prefix() . TextFormat::YELLOW . $source->getName() . ' has left the party');
     }
 
     /**
@@ -126,18 +127,9 @@ final class DefaultPartyAdapter extends PartyAdapter {
      * @param Party  $party
      */
     public function disbandParty(Player $source, Party $party): void {
-        foreach ($party->getMembers() as $member) {
-            $this->clearMember($member->getXuid());
+        $this->postDisbandParty($party);
 
-            // TODO: Change this to our own method to have better performance
-            // because getPlayerExact iterates over all players
-            $player = Server::getInstance()->getPlayerExact($member->getXuid());
-            if ($player === null || !$player->isOnline()) continue;
-
-            $player->sendMessage(TextFormat::RED . 'Your party has been disbanded');
-        }
-
-        $this->remove($party->getId());
+        $source->sendMessage(PartiesPlugin::prefix() . TextFormat::GREEN . 'You have disbanded the party');
     }
 
     /**

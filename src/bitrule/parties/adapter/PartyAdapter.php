@@ -123,8 +123,6 @@ abstract class PartyAdapter {
      * @param Party $party
      */
     public function postDisbandParty(Party $party): void {
-        $this->remove($party->getId());
-
         $disbandedMessage = PartiesPlugin::prefix() . TextFormat::YELLOW . $party->getOwnership()->getName() . TextFormat::GOLD . ' has disbanded the party!';
         foreach ($party->getMembers() as $member) {
             $this->clearMember($member->getXuid());
@@ -134,6 +132,8 @@ abstract class PartyAdapter {
 
             $player->sendMessage($disbandedMessage);
         }
+
+        $this->remove($party->getId());
     }
 
     /**
