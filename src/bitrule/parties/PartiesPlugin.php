@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace bitrule\parties;
 
 use bitrule\parties\adapter\PartyAdapter;
+use bitrule\parties\listener\PlayerQuitListener;
 use pocketmine\plugin\PluginBase;
 use pocketmine\utils\SingletonTrait;
 use pocketmine\utils\TextFormat;
+use RuntimeException;
 
 final class PartiesPlugin extends PluginBase {
     use SingletonTrait {
@@ -39,6 +41,8 @@ final class PartiesPlugin extends PluginBase {
             '/party [sub-command] [args]',
             ['p']
         ));
+
+        $this->getServer()->getPluginManager()->registerEvents(new PlayerQuitListener(), $this);
     }
 
     /**
@@ -55,7 +59,7 @@ final class PartiesPlugin extends PluginBase {
      */
     public function setPartyAdapter(PartyAdapter $partyAdapter): void {
         if ($this->partyAdapter !== null) {
-            throw new \RuntimeException('Party adapter is already set');
+            throw new RuntimeException('Party adapter is already set');
         }
 
         $this->partyAdapter = $partyAdapter;

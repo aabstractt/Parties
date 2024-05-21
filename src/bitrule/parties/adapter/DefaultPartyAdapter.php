@@ -31,8 +31,8 @@ final class DefaultPartyAdapter extends PartyAdapter {
         $party = new PartyImpl(Uuid::uuid4()->toString());
         $party->addMember(new MemberImpl($source->getXuid(), $source->getName(), Role::OWNER));
 
-        $this->cache($party);
         $this->cacheMember($source->getXuid(), $party->getId());
+        $this->cache($party);
 
         $source->sendMessage(PartiesPlugin::prefix() . TextFormat::GREEN . 'You have created a party');
     }
@@ -89,7 +89,7 @@ final class DefaultPartyAdapter extends PartyAdapter {
      * @param Player $target
      * @param Party  $party
      */
-    public function onPlayerKick(Player $source, Player $target, Party $party): void {
+    public function onPlayerKick(Player $source, Player $target, Party $party): void { // TODO: Change the signature of target to string $playerName
         $party = $this->getPartyByPlayer($source->getXuid());
         if ($party === null) {
             $source->sendMessage(PartiesPlugin::prefix() . TextFormat::RED . 'You are not in a party');
