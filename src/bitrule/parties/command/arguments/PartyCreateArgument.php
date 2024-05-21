@@ -27,7 +27,7 @@ final class PartyCreateArgument extends Argument {
         }
 
         if ($partyAdapter->getPartyByPlayer($sender->getXuid()) !== null) {
-            $sender->sendMessage(TextFormat::RED . 'You are already in a party');
+            $sender->sendMessage(PartiesPlugin::prefix() . TextFormat::RED . 'You are already in a party');
 
             return;
         }

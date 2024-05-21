@@ -10,7 +10,7 @@ use bitrule\parties\PartiesPlugin;
 use pocketmine\player\Player;
 use pocketmine\utils\TextFormat;
 
-final class PartyDisbandArgument extends Argument {
+final class PartyAcceptArgument extends Argument {
     use PlayerArgumentTrait;
 
     /**
@@ -26,20 +26,19 @@ final class PartyDisbandArgument extends Argument {
             return;
         }
 
+        if (count($args) < 1) {
+            $sender->sendMessage(TextFormat::RED . 'Usage: /party accept <player>');
+
+            return;
+        }
+
         $party = $partyAdapter->getPartyByPlayer($sender->getXuid());
-        if ($party === null) {
-            $sender->sendMessage(PartiesPlugin::prefix() . TextFormat::RED . 'You are not in a party');
+        if ($party !== null) {
+            $sender->sendMessage(PartiesPlugin::prefix() . TextFormat::RED . 'You are already in a party');
 
             return;
         }
 
-        $ownership = $party->getOwnership();
-        if ($ownership->getXuid() !== $sender->getXuid()) {
-            $sender->sendMessage(PartiesPlugin::prefix() . TextFormat::RED . 'You are not the owner of the party');
-
-            return;
-        }
-
-        $partyAdapter->disbandParty($sender, $party);
+        $partyAdapter->onPlayerAccept($sender, $args[0]);
     }
 }

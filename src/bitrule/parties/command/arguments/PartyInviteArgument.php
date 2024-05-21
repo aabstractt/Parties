@@ -34,14 +34,14 @@ final class PartyInviteArgument extends Argument {
 
         $party = $partyAdapter->getPartyByPlayer($sender->getXuid());
         if ($party === null) {
-            $sender->sendMessage(TextFormat::RED . 'You are not in a party');
+            $sender->sendMessage(PartiesPlugin::prefix() . TextFormat::RED . 'You are not in a party');
 
             return;
         }
 
         $ownership = $party->getOwnership();
         if ($ownership->getXuid() !== $sender->getXuid()) {
-            $sender->sendMessage(TextFormat::RED . 'You are not the owner of the party');
+            $sender->sendMessage(PartiesPlugin::prefix() . TextFormat::RED . 'You are not the owner of the party');
 
             return;
         }
