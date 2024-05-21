@@ -13,24 +13,7 @@ use pocketmine\Server;
 use pocketmine\utils\TextFormat;
 use Ramsey\Uuid\Uuid;
 
-final class DefaultPartyAdapter implements PartyAdapter {
-
-    /** @var array<string, Party> */
-    private array $parties = [];
-    /** @var array<string, string> */
-    private array $playersParty = [];
-
-    /**
-     * @param Player $player
-     *
-     * @return Party|null
-     */
-    public function getPartyByPlayer(Player $player): ?Party {
-        $partyId = $this->playersParty[$player->getXuid()] ?? null;
-        if ($partyId === null) return null;
-
-        return $this->parties[$partyId] ?? null;
-    }
+final class DefaultPartyAdapter extends PartyAdapter {
 
     /**
      * Adapt the method to create a party.
@@ -47,8 +30,8 @@ final class DefaultPartyAdapter implements PartyAdapter {
         $party = new PartyImpl(Uuid::uuid4()->toString());
         $party->addMember(new MemberImpl($source->getXuid(), $source->getName(), Role::OWNER));
 
-        $this->parties[$party->getId()] = $party;
-        $this->playersParty[$source->getXuid()] = $party->getId();
+        $this->cache($party);
+        $this->cacheMember($source->getXuid(), $party->getId());
 
         $source->sendMessage(TextFormat::GREEN . 'You have created a party');
     }
@@ -112,7 +95,7 @@ final class DefaultPartyAdapter implements PartyAdapter {
         }
 
         $party->removeMember($target->getXuid());
-        unset($this->playersParty[$target->getXuid()]);
+        $this->clearMember($target->getXuid());
 
         $party->broadcastMessage(TextFormat::YELLOW . $target->getName() . ' has been kicked from the party');
     }
@@ -123,7 +106,7 @@ final class DefaultPartyAdapter implements PartyAdapter {
      */
     public function processLeavePlayer(Player $source, Party $party): void {
         $party->removeMember($source->getXuid());
-        unset($this->playersParty[$source->getXuid()]);
+        $this->clearMember($source->getXuid());
 
         $party->broadcastMessage(TextFormat::YELLOW . $source->getName() . ' has left the party');
     }
@@ -136,7 +119,7 @@ final class DefaultPartyAdapter implements PartyAdapter {
      */
     public function disbandParty(Player $source, Party $party): void {
         foreach ($party->getMembers() as $member) {
-            unset($this->playersParty[$member->getXuid()]);
+            $this->clearMember($member->getXuid());
 
             // TODO: Change this to our own method to have better performance
             // because getPlayerExact iterates over all players
@@ -146,7 +129,7 @@ final class DefaultPartyAdapter implements PartyAdapter {
             $player->sendMessage(TextFormat::RED . 'Your party has been disbanded');
         }
 
-        unset($this->parties[$party->getId()]);
+        $this->remove($party->getId());
     }
 
     /**
