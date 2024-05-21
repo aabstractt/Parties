@@ -1,0 +1,21 @@
+{
+  "name": "bitrule/plugin_name",
+  "description": "Description",
+  "minimum-stability": "dev",
+  "license": "Apache-2.0",
+
+  "require": {
+    "php": "^8.1"
+  },
+
+  "require-dev": {
+    "friendsofphp/php-cs-fixer": "^v3.48.0",
+    "phpstan/phpstan": "^1.2.0",
+    "phpstan/phpstan-strict-rules": "^1.1.0",
+    "pocketmine/pocketmine-mp": "^5.10.0"
+  },
+
+  "autoload": {
+    "psr-4": {"": ["src"]}
+  }
+}
