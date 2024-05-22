@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace bitrule\parties\object;
 
 use InvalidArgumentException;
+use function strtoupper;
 
 enum Role {
     case OWNER;

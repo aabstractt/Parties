@@ -1,7 +1,11 @@
 ---
-name: plugin_name
-author: Abstract
+name: PartiesPlugin
+author: bitrule
 version: "1.0"
-api: 4.0.0
-main: main
+api: 5.0.0
+main: bitrule\parties\PartiesPlugin
+permissions:
+  parties.command.party:
+    default: true
+    description: Allows the player to use the /party command
 ...

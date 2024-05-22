@@ -9,6 +9,8 @@ use bitrule\parties\object\Party;
 use bitrule\parties\object\Role;
 use pocketmine\Server;
 use RuntimeException;
+use function array_search;
+use function in_array;
 
 final class PartyImpl implements Party {
 

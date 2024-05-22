@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace bitrule\parties\object;
 
-use bitrule\parties\object\Role;
-
 interface Member {
 
     /**

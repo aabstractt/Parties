@@ -9,6 +9,7 @@ use abstractplugin\command\PlayerArgumentTrait;
 use bitrule\parties\PartiesPlugin;
 use pocketmine\player\Player;
 use pocketmine\utils\TextFormat;
+use function count;
 
 final class PartyInviteArgument extends Argument {
     use PlayerArgumentTrait;

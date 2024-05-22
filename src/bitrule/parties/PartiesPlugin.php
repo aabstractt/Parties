@@ -10,6 +10,7 @@ use pocketmine\plugin\PluginBase;
 use pocketmine\utils\SingletonTrait;
 use pocketmine\utils\TextFormat;
 use RuntimeException;
+use function is_bool;
 
 final class PartiesPlugin extends PluginBase {
     use SingletonTrait {
@@ -28,6 +29,8 @@ final class PartiesPlugin extends PluginBase {
     }
 
     public function onEnable(): void {
+        $this->saveDefaultConfig();
+
         $defaultAdapter = $this->getConfig()->get('default-adapter');
         if (is_bool($defaultAdapter) && $defaultAdapter) {
             $this->partyAdapter = new adapter\DefaultPartyAdapter();
@@ -35,13 +38,7 @@ final class PartiesPlugin extends PluginBase {
             $this->getLogger()->info(TextFormat::GOLD . 'Using default party adapter');
         }
 
-        $this->getServer()->getCommandMap()->register('parties', new command\DefaultPartyCommand(
-            'party',
-            'Manage parties across the server',
-            '/party [sub-command] [args]',
-            ['p']
-        ));
-
+        $this->getServer()->getCommandMap()->register('parties', new command\DefaultPartyCommand());
         $this->getServer()->getPluginManager()->registerEvents(new PlayerQuitListener(), $this);
     }
 
