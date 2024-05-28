@@ -57,6 +57,20 @@ interface Party {
 
     /**
      * @param string $xuid
+     *
+     * @return Member|null
+     */
+    public function getMemberByXuid(string $xuid): ?Member;
+
+    /**
+     * @param string $name
+     *
+     * @return Member|null
+     */
+    public function getMemberByName(string $name): ?Member;
+
+    /**
+     * @param string $xuid
      */
     public function addPendingInvite(string $xuid): void;
 

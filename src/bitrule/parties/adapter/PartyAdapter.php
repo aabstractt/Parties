@@ -100,16 +100,23 @@ abstract class PartyAdapter {
 
     /**
      * @param Player $source
-     * @param Player $target
+     * @param string $playerName
      * @param Party  $party
      */
-    abstract public function onPlayerKick(Player $source, Player $target, Party $party): void;
+    abstract public function onPlayerKick(Player $source, string $playerName, Party $party): void;
 
     /**
      * @param Player $source
      * @param Party  $party
      */
     abstract public function onPlayerLeave(Player $source, Party $party): void;
+
+    /**
+     * @param Player $source
+     * @param string $playerName
+     * @param Party  $party
+     */
+    abstract public function onPartyTransfer(Player $source, string $playerName, Party $party): void;
 
     /**
      * Adapt the method to disband a party

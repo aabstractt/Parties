@@ -100,6 +100,38 @@ final class PartyImpl implements Party {
 
     /**
      * @param string $xuid
+     *
+     * @return Member|null
+     */
+    public function getMemberByXuid(string $xuid): ?Member {
+        foreach ($this->members as $member) {
+            if ($member->getXuid() !== $xuid) continue;
+
+            return $member;
+        }
+
+        return null;
+    }
+
+    /**
+     * @param string $name
+     *
+     * @return Member|null
+     */
+    public function getMemberByName(string $name): ?Member {
+        $name = strtolower($name);
+
+        foreach ($this->members as $member) {
+            if (strtolower($member->getName()) !== $name) continue;
+
+            return $member;
+        }
+
+        return null;
+    }
+
+    /**
+     * @param string $xuid
      */
     public function addPendingInvite(string $xuid): void {
         $this->pendingInvites[] = $xuid;

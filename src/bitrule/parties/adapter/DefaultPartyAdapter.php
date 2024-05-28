@@ -86,10 +86,18 @@ final class DefaultPartyAdapter extends PartyAdapter {
 
     /**
      * @param Player $source
-     * @param Player $target
+     * @param string $playerName
      * @param Party  $party
      */
-    public function onPlayerKick(Player $source, Player $target, Party $party): void { // TODO: Change the signature of target to string $playerName
+    public function onPlayerKick(Player $source, string $playerName, Party $party): void {
+        $target = Server::getInstance()->getPlayerByPrefix($playerName);
+        if ($target === null || !$target->isOnline()) {
+            $source->sendMessage(PartiesPlugin::prefix() . TextFormat::RED . $playerName . ' not is online');
+
+            return;
+        }
+
+        // TODO: Change the signature of target to string $playerName
         $party = $this->getPartyByPlayer($source->getXuid());
         if ($party === null) {
             $source->sendMessage(PartiesPlugin::prefix() . TextFormat::RED . 'You are not in a party');
@@ -118,6 +126,48 @@ final class DefaultPartyAdapter extends PartyAdapter {
         $this->clearMember($source->getXuid());
 
         $party->broadcastMessage(PartiesPlugin::prefix() . TextFormat::YELLOW . $source->getName() . ' has left the party');
+    }
+
+    /**
+     * @param Player $source
+     * @param string $playerName
+     * @param Party  $party
+     */
+    public function onPartyTransfer(Player $source, string $playerName, Party $party): void {
+        $target = Server::getInstance()->getPlayerByPrefix($playerName);
+        if ($target === null || !$target->isOnline()) {
+            $source->sendMessage(PartiesPlugin::prefix() . TextFormat::RED . $playerName . ' not is online');
+
+            return;
+        }
+
+        $member = $party->getMemberByXuid($source->getXuid());
+        if ($member === null || $member->getRole() !== Role::OWNER) {
+            $source->sendMessage(PartiesPlugin::prefix() . TextFormat::RED . 'You are not the owner of the party');
+
+            return;
+        }
+
+        if ($party->getMemberByXuid($target->getXuid()) === null) {
+            $source->sendMessage(PartiesPlugin::prefix() . TextFormat::RED . $target->getName() . ' is not in your party');
+
+            return;
+        }
+
+        $party->addMember(new MemberImpl(
+            $target->getXuid(),
+            $target->getName(),
+            Role::OWNER
+        ));
+        $party->addMember(
+            new MemberImpl(
+                $source->getXuid(),
+                $source->getName(),
+                Role::MEMBER
+            )
+        );
+
+        $party->broadcastMessage(PartiesPlugin::prefix() . TextFormat::YELLOW . $target->getName() . ' is now the owner of the party');
     }
 
     /**
