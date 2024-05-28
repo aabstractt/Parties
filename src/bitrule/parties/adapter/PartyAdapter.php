@@ -4,7 +4,13 @@ declare(strict_types=1);
 
 namespace bitrule\parties\adapter;
 
+use bitrule\parties\event\PartyCreateEvent;
+use bitrule\parties\event\PartyDisbandEvent;
+use bitrule\parties\event\PartyTransferEvent;
+use bitrule\parties\object\impl\MemberImpl;
+use bitrule\parties\object\Member;
 use bitrule\parties\object\Party;
+use bitrule\parties\object\Role;
 use bitrule\parties\PartiesPlugin;
 use pocketmine\player\Player;
 use pocketmine\Server;
@@ -51,6 +57,21 @@ abstract class PartyAdapter {
      * @param Player $source
      */
     abstract public function createParty(Player $source): void;
+
+    /**
+     * Cache the member and the party
+     *
+     * @param Player $source
+     * @param Party  $party
+     */
+    protected function postCreate(Player $source, Party $party): void {
+        $this->cacheMember($source->getXuid(), $party->getId());
+        $this->cache($party);
+
+        $source->sendMessage(PartiesPlugin::prefix() . TextFormat::GREEN . 'You have created a party');
+
+        (new PartyCreateEvent($source, $party))->call();
+    }
 
     /**
      * Add the party to the local cache
@@ -119,6 +140,30 @@ abstract class PartyAdapter {
     abstract public function onPartyTransfer(Player $source, string $playerName, Party $party): void;
 
     /**
+     * @param Player $source
+     * @param Member $targetMember
+     * @param Party  $party
+     */
+    protected function postTransferParty(Player $source, Member $targetMember, Party $party): void {
+        $party->addMember(new MemberImpl(
+            $targetMember->getXuid(),
+            $targetMember->getName(),
+            Role::OWNER
+        ));
+        $party->addMember(
+            new MemberImpl(
+                $source->getXuid(),
+                $source->getName(),
+                Role::MEMBER
+            )
+        );
+
+        $party->broadcastMessage(PartiesPlugin::prefix() . TextFormat::YELLOW . $targetMember->getName() . ' is now the owner of the party');
+
+        (new PartyTransferEvent($source, $party))->call();
+    }
+
+    /**
      * Adapt the method to disband a party
      *
      * @param Player $source
@@ -130,6 +175,12 @@ abstract class PartyAdapter {
      * @param Party $party
      */
     public function postDisbandParty(Party $party): void {
+        $ownership = $party->getOwnership();
+        $source = Server::getInstance()->getPlayerExact($ownership->getName());
+        if ($source !== null && $source->isOnline()) {
+            (new PartyDisbandEvent($source, $party))->call();
+        }
+
         $disbandedMessage = PartiesPlugin::prefix() . TextFormat::YELLOW . $party->getOwnership()->getName() . TextFormat::GOLD . ' has disbanded the party!';
         foreach ($party->getMembers() as $member) {
             $this->clearMember($member->getXuid());

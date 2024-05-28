@@ -31,10 +31,7 @@ final class DefaultPartyAdapter extends PartyAdapter {
         $party = new PartyImpl(Uuid::uuid4()->toString());
         $party->addMember(new MemberImpl($source->getXuid(), $source->getName(), Role::OWNER));
 
-        $this->cacheMember($source->getXuid(), $party->getId());
-        $this->cache($party);
-
-        $source->sendMessage(PartiesPlugin::prefix() . TextFormat::GREEN . 'You have created a party');
+        $this->postCreate($source, $party);
     }
 
     /**
@@ -148,26 +145,14 @@ final class DefaultPartyAdapter extends PartyAdapter {
             return;
         }
 
-        if ($party->getMemberByXuid($target->getXuid()) === null) {
+        $targetMember = $party->getMemberByXuid($target->getXuid());
+        if ($targetMember === null) {
             $source->sendMessage(PartiesPlugin::prefix() . TextFormat::RED . $target->getName() . ' is not in your party');
 
             return;
         }
 
-        $party->addMember(new MemberImpl(
-            $target->getXuid(),
-            $target->getName(),
-            Role::OWNER
-        ));
-        $party->addMember(
-            new MemberImpl(
-                $source->getXuid(),
-                $source->getName(),
-                Role::MEMBER
-            )
-        );
-
-        $party->broadcastMessage(PartiesPlugin::prefix() . TextFormat::YELLOW . $target->getName() . ' is now the owner of the party');
+        $this->postTransferParty($source, $targetMember, $party);
     }
 
     /**

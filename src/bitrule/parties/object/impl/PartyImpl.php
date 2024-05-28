@@ -11,6 +11,7 @@ use pocketmine\Server;
 use RuntimeException;
 use function array_search;
 use function in_array;
+use function strtolower;
 
 final class PartyImpl implements Party {
 
