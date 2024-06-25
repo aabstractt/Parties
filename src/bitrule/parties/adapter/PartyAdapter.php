@@ -172,16 +172,11 @@ abstract class PartyAdapter {
     abstract public function disbandParty(Player $source, Party $party): void;
 
     /**
-     * @param Party $party
+     * @param Party  $party
+     * @param Member $ownership
      */
-    public function postDisbandParty(Party $party): void {
-        $ownership = $party->getOwnership();
-        $source = Server::getInstance()->getPlayerExact($ownership->getName());
-        if ($source !== null && $source->isOnline()) {
-            (new PartyDisbandEvent($source, $party))->call();
-        }
-
-        $disbandedMessage = PartiesPlugin::prefix() . TextFormat::YELLOW . $party->getOwnership()->getName() . TextFormat::GOLD . ' has disbanded the party!';
+    public function postDisbandParty(Party $party, Member $ownership): void {
+        $disbandedMessage = PartiesPlugin::prefix() . TextFormat::YELLOW . $ownership->getName() . TextFormat::GOLD . ' has disbanded the party!';
         foreach ($party->getMembers() as $member) {
             $this->clearMember($member->getXuid());
 
@@ -192,6 +187,12 @@ abstract class PartyAdapter {
         }
 
         $this->remove($party->getId());
+
+        // TODO: Execute the event after the party is removed because that have some problems
+        $source = Server::getInstance()->getPlayerExact($ownership->getName());
+        if ($source === null || !$source->isOnline()) return;
+
+        (new PartyDisbandEvent($source, $party))->call();
     }
 
     /**

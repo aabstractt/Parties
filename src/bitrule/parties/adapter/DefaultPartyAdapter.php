@@ -78,7 +78,28 @@ final class DefaultPartyAdapter extends PartyAdapter {
      * @param string $playerName
      */
     public function onPlayerAccept(Player $source, string $playerName): void {
-        // TODO: Implement onPlayerAccept() method.
+        $target = Server::getInstance()->getPlayerByPrefix($playerName);
+        if ($target === null || !$target->isOnline()) {
+            $source->sendMessage(PartiesPlugin::prefix() . TextFormat::RED . $playerName . ' not is online');
+
+            return;
+        }
+
+        // TODO: Change the signature of target to string $playerName
+        $party = $this->getPartyByPlayer($target->getXuid());
+        if ($party === null || !$party->hasPendingInvite($source->getXuid())) {
+            $source->sendMessage(PartiesPlugin::prefix() . TextFormat::RED . $target->getName() . ' has not invited you to a party');
+
+            return;
+        }
+
+        $party->removePendingInvite($source->getXuid());
+        $party->addMember(new MemberImpl($source->getXuid(), $source->getName(), Role::MEMBER));
+
+        $this->cacheMember($source->getXuid(), $party->getId());
+
+        $party->broadcastMessage(PartiesPlugin::prefix() . TextFormat::YELLOW . $source->getName() . ' has joined the party');
+        $source->sendMessage(PartiesPlugin::prefix() . TextFormat::GREEN . 'You have joined ' . $target->getName() . '\'s party');
     }
 
     /**
@@ -90,14 +111,6 @@ final class DefaultPartyAdapter extends PartyAdapter {
         $target = Server::getInstance()->getPlayerByPrefix($playerName);
         if ($target === null || !$target->isOnline()) {
             $source->sendMessage(PartiesPlugin::prefix() . TextFormat::RED . $playerName . ' not is online');
-
-            return;
-        }
-
-        // TODO: Change the signature of target to string $playerName
-        $party = $this->getPartyByPlayer($source->getXuid());
-        if ($party === null) {
-            $source->sendMessage(PartiesPlugin::prefix() . TextFormat::RED . 'You are not in a party');
 
             return;
         }
@@ -162,7 +175,7 @@ final class DefaultPartyAdapter extends PartyAdapter {
      * @param Party  $party
      */
     public function disbandParty(Player $source, Party $party): void {
-        $this->postDisbandParty($party);
+        $this->postDisbandParty($party, $party->getOwnership());
 
         $source->sendMessage(PartiesPlugin::prefix() . TextFormat::GREEN . 'You have disbanded the party');
     }
