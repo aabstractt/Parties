@@ -9,6 +9,7 @@ use bitrule\parties\command\arguments\PartyAcceptArgument;
 use bitrule\parties\command\arguments\PartyCreateArgument;
 use bitrule\parties\command\arguments\PartyDisbandArgument;
 use bitrule\parties\command\arguments\PartyInviteArgument;
+use bitrule\parties\command\arguments\PartyKickArgument;
 use bitrule\parties\command\arguments\PartyLeaveArgument;
 
 final class DefaultPartyCommand extends BaseCommand {
@@ -21,6 +22,7 @@ final class DefaultPartyCommand extends BaseCommand {
         $this->registerParent(
             new PartyCreateArgument('create'),
             new PartyInviteArgument('invite'),
+            new PartyKickArgument('kick'),
             new PartyLeaveArgument('leave'),
             new PartyAcceptArgument('accept'),
             new PartyDisbandArgument('disband')
